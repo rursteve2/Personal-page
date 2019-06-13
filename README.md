@@ -1,2 +1,2 @@
-# Personal-page
-Portfolio
+# Personal Portfolio
+Portfolio that contains all of the work I have completed.
