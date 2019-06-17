@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "stephencchen.com/static/css/main.3cdcb75d.chunk.css",
+    "main.js": "stephencchen.com/static/js/main.04a0d563.chunk.js",
+    "main.js.map": "stephencchen.com/static/js/main.04a0d563.chunk.js.map",
+    "runtime~main.js": "stephencchen.com/static/js/runtime~main.3f53428f.js",
+    "runtime~main.js.map": "stephencchen.com/static/js/runtime~main.3f53428f.js.map",
+    "static/js/2.cde98ef6.chunk.js": "stephencchen.com/static/js/2.cde98ef6.chunk.js",
+    "static/js/2.cde98ef6.chunk.js.map": "stephencchen.com/static/js/2.cde98ef6.chunk.js.map",
+    "index.html": "stephencchen.com/index.html",
+    "precache-manifest.23a47a5911d728751f579609f4981c13.js": "stephencchen.com/precache-manifest.23a47a5911d728751f579609f4981c13.js",
+    "service-worker.js": "stephencchen.com/service-worker.js",
+    "static/css/main.3cdcb75d.chunk.css.map": "stephencchen.com/static/css/main.3cdcb75d.chunk.css.map"
+  }
+}
