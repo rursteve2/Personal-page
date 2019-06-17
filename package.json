@@ -1,10 +1,9 @@
 {
   "name": "personal-page",
   "version": "0.1.0",
-  "private": false,
+  "private": true,
   "homepage": "stephencchen.com",
   "dependencies": {
-    "gh-pages": "^2.0.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-router": "^5.0.1",
@@ -33,5 +32,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^2.0.1"
   }
 }
