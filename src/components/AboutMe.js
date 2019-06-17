@@ -5,54 +5,68 @@ class AboutMe extends Component {
     render() {
     return (
       <div className="aboutme">
-       <p>Motivated and determined full stack web developer with a passion for working with others and learning.</p>
+       <p className="personalline">Motivated and determined full stack web developer with a passion for working with others and learning.</p>
 
         <div className="techicons">
             <div className="oneicon">
                 <i className="devicon-visualstudio-plain colored"></i>
-                <p className="oneicondescription">Test</p>
+                <p className="oneicondescription">VSCode</p>
             </div>
             <div className="oneicon">
-                <i className="devicon-amazonwebservices-plain-wordmark colored"></i>
+                <i class="devicon-amazonwebservices-original colored"></i>
+                <p className="oneicondescription">Amazon Web Services</p>
             </div>
             <div className="oneicon">
-                <i className="devicon-css3-plain-wordmark colored"></i>
+                <i class="devicon-css3-plain colored"></i>
+                <p className="oneicondescription">CSS3</p>
             </div>
             <div className="oneicon">
-                <i className="devicon-html5-plain-wordmark colored"></i>
+                <i class="devicon-html5-plain colored"></i>
+                <p className="oneicondescription">HTML5</p>
             </div>
             <div className="oneicon">
-                <i className="devicon-github-plain"></i>
+                <i class="devicon-github-plain"></i>
+                <p className="oneicondescription">Github</p>
             </div>
             <div className="oneicon">
-                <i className="devicon-git-plain-wordmark colored"></i>
+                <i class="devicon-git-plain colored"></i>
+                <p className="oneicondescription">Git</p>
             </div>
             <div className="oneicon">
                 <i className="devicon-javascript-plain colored"></i>
+                <p className="oneicondescription">Javascript</p>
             </div>
             <div className="oneicon">
                 <i className="devicon-nodejs-plain colored"></i>
+                <p className="oneicondescription">Node.js</p>
             </div>
             <div className="oneicon">
                 <i className="devicon-express-original"></i>
+                <p className="oneicondescription">Express.js</p>
             </div>
             <div className="oneicon">
                 <i className="devicon-react-original colored"></i>
+                <p className="oneicondescription">React.js</p>
             </div>
             <div className="oneicon">
-                <i className="devicon-postgresql-plain-wordmark colored"></i>
+                <i class="devicon-postgresql-plain colored"></i>
+                <p className="oneicondescription">PostgreSQL</p>
             </div>
             <div className="oneicon">
                 <i className="devicon-ruby-plain colored"></i>
+                <p className="oneicondescription">Ruby</p>
             </div>
             <div className="oneicon">
                 <i className="devicon-rails-plain colored"></i>
+                <p className="oneicondescription">Rails</p>
             </div>
             <div className="oneicon">
                 <i className="devicon-slack-plain colored"></i>
+                <p className="oneicondescription">Slack</p>
             </div>
             <div className="oneicon">
-                <i className="devicon-sequelize-plain-wordmark"></i>
+                <i class="devicon-sequelize-plain"></i>
+                <p className="oneicondescription">Sequelize</p>
             </div>
         </div>
       </div>

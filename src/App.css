@@ -157,25 +157,59 @@ i {
   position: relative;
 }
 
+.oneicon p {
+  font-size: 20px;
+  font-family: 'Roboto', sans-serif;
+
+}
+
 .oneicondescription {
   position: absolute;
-  top: 95px;
+  top: 0;
   bottom: 0;
   left: 0;
   right: 0;
+  height: 100%;
+  width: 100%;
   background: rgba(0, 0, 0, .5);
-  transition: opacity .2s, visibility .2s;
   margin-top: 0;
   margin-bottom: 0;
   visibility: hidden;
   opacity: 0;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  flex-direction: column;
+  border-radius: 10px;
 }
 
 .oneicon:hover .oneicondescription{
   visibility: visible;
   opacity: 1;
+  height: 95px;
+
+}
+
+.personalline {
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
+@media only screen and (max-width: 600px) {
+  .header {
+    justify-content: center;
+    margin: 0 auto;
+  }
+
+  .project1, .project2, .project3, .projectuxdi, .project4 {
+    display: flex;
+    flex-direction: column;
+    margin: 50px auto;
+  }
+
+  .project1 {
+    margin-top: 800px;
+  }
+
+  .project1 img, .project2 img, .project3 img, .projectuxdi img, .project4 img {
+    width: 300px;
+  }
+
+
 }

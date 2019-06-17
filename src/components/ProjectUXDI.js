@@ -9,7 +9,7 @@ class ProjectUXDI extends Component {
             <p className="description">Check out the site <a href="http://uxdi-sei-fetch.surge.sh">here</a></p>
             </div>
             <div>
-                <h2>Fetch!</h2>
+                <h2>Fetch</h2>
                 <p>A site to display pet information. Made in collaboration with a group of UX designers.</p>
             <h6>
                 <a href="https://github.com/rursteve2/fetch">
