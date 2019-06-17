@@ -2,12 +2,24 @@ import React, { Component } from 'react';
 
 class ProjectUXDI extends Component {
     render() {
-    return (
-      <div className="projectuxdi">
-       <h1>Project UXDI</h1>
-      </div>
-    );
-  }
+        return (
+        <div className="projectuxdi">
+            <div className="projectimgdiv">
+                <img className="projectimg" src="https://i.imgur.com/8nkcBdw.png" alt=""/>
+            <p className="description">Check out the site <a href="http://uxdi-sei-fetch.surge.sh">here</a></p>
+            </div>
+            <div>
+                <h2>Fetch!</h2>
+                <p>A site to display pet information. Made in collaboration with a group of UX designers.</p>
+            <h6>
+                <a href="https://github.com/rursteve2/fetch">
+                    View it on Github
+                </a>
+            </h6>
+            </div>
+        </div>
+        );
+    }
   }
   
   export default ProjectUXDI;

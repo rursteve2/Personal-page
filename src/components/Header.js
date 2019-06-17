@@ -1,25 +1,15 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom'
 
 class Header extends Component {
   render() {
     return (
-      <div>
-        <Link to="/">
-          <div>
-            Home
-          </div>
-        </Link>
-      <Link to="/aboutme">
-        <div className="headerlinks">
-          About Me
+      <div className="header">
+        <div className="contacticons">
+          <a href="https://github.com/rursteve2"><i className="fab fa-github-square"></i></a>
+          <a href="https://www.linkedin.com/in/chenstephen2"><i className="fab fa-linkedin"></i></a>
+          <a href="mailto:chenstephen2@gmail.com">
+          <i className="fas fa-envelope-square"></i></a>
         </div>
-      </Link>
-      <a href="mailto:chenstephen2@gmail.com">
-      <div>
-        Contact Me
-        </div>
-      </a>
       </div>
     );
   }
