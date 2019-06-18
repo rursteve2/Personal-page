@@ -143,6 +143,7 @@ i {
   margin-right: 10px;
 }
 
+
 .techicons i {
   font-size: 95px;
 }
@@ -155,43 +156,54 @@ i {
 }
 
 .oneicon {
-  margin-bottom: 20px;
+  margin-bottom: 70px;
   position: relative;
 }
 
 .oneicon p {
   font-size: 20px;
   font-family: 'Roboto', sans-serif;
-
+  text-shadow: 1px 1px 2px rgb(201, 227, 248), 0 0 1em rgb(0, 0, 0), 0 0 0.2em rgb(0, 0, 0);
 }
 
 .oneicondescription {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 70px;
+  /* bottom: 0;
   left: 0;
-  right: 0;
+  right: 0; */
   height: 100%;
   width: 100%;
-  background: rgba(0, 0, 0, .5);
   margin-top: 0;
   margin-bottom: 0;
   visibility: hidden;
   opacity: 0;
-  border-radius: 10px;
+  transition: all .3s ease-in-out;
 }
 
 .oneicon:hover .oneicondescription{
   visibility: visible;
   opacity: 1;
   height: 95px;
-
 }
 
 .personalline {
   margin-left: 50px;
   margin-right: 50px;
 }
+
+.fab, .fas {
+  transition: all .3s ease-in-out;
+}
+
+.fab:hover, .fas:hover {
+  transform: scale(1.2)
+}
+
+.oneicon:hover {
+  transform: scale(1.2)
+}
+
 
 @media only screen and (max-width: 600px) {
   .header {
@@ -217,10 +229,14 @@ i {
     width: 300px;
   }
 
+  h6 {
+    font-size: 30px;
+  }
+
 }
 
 @media only screen and (max-width: 391px) {
   .project1 {
-    margin-top: 1100px;
+    margin-top: 1600px;
   }
 }
