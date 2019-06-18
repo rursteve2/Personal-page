@@ -9,9 +9,13 @@
   color: white;
 }
 
+h2 {
+  font-size: 35px;
+}
+
 p {
   font-family: 'PT Serif', serif;
-
+  font-size: 20px;
 }
 
 img {
@@ -49,13 +53,17 @@ body {
   width: 500px;
 }
 
+.projectimgdiv img {
+  border-radius: 7px;
+}
+
 .description {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0, 0, 0, .5);
+  background: rgba(0, 0, 0, 0.6);
   transition: opacity .2s, visibility .2s;
   margin-top: 0;
   margin-bottom: 0;
@@ -65,6 +73,7 @@ body {
   justify-content: center;
   align-content: center;
   flex-direction: column;
+  border-radius: 7px;
 }
 
 .projectimgdiv:hover .description{
