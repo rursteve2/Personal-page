@@ -204,6 +204,14 @@ i {
   transform: scale(1.2)
 }
 
+h6 {
+  font-size: 25px;
+}
+
+a {
+  text-decoration: none;
+}
+
 @media only screen and (max-width: 999px) {
   .project1 {
     margin-top: 800px;
