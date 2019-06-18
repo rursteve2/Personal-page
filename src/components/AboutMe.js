@@ -61,7 +61,7 @@ class AboutMe extends Component {
                 <p className="oneicondescription">Rails</p>
             </div>
             <div className="oneicon">
-                <i className="devicon-slack-plain colored"></i>
+                <i className="devicon-slack-plain"></i>
                 <p className="oneicondescription">Slack</p>
             </div>
             <div className="oneicon">
