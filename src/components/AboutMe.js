@@ -13,23 +13,23 @@ class AboutMe extends Component {
                 <p className="oneicondescription">VSCode</p>
             </div>
             <div className="oneicon">
-                <i class="devicon-amazonwebservices-original colored"></i>
+                <i className="devicon-amazonwebservices-original colored"></i>
                 <p className="oneicondescription">Amazon Web Services</p>
             </div>
             <div className="oneicon">
-                <i class="devicon-css3-plain colored"></i>
+                <i className="devicon-css3-plain colored"></i>
                 <p className="oneicondescription">CSS3</p>
             </div>
             <div className="oneicon">
-                <i class="devicon-html5-plain colored"></i>
+                <i className="devicon-html5-plain colored"></i>
                 <p className="oneicondescription">HTML5</p>
             </div>
             <div className="oneicon">
-                <i class="devicon-github-plain"></i>
+                <i className="devicon-github-plain"></i>
                 <p className="oneicondescription">Github</p>
             </div>
             <div className="oneicon">
-                <i class="devicon-git-plain colored"></i>
+                <i className="devicon-git-plain colored"></i>
                 <p className="oneicondescription">Git</p>
             </div>
             <div className="oneicon">
@@ -49,7 +49,7 @@ class AboutMe extends Component {
                 <p className="oneicondescription">React.js</p>
             </div>
             <div className="oneicon">
-                <i class="devicon-postgresql-plain colored"></i>
+                <i className="devicon-postgresql-plain colored"></i>
                 <p className="oneicondescription">PostgreSQL</p>
             </div>
             <div className="oneicon">
@@ -65,7 +65,7 @@ class AboutMe extends Component {
                 <p className="oneicondescription">Slack</p>
             </div>
             <div className="oneicon">
-                <i class="devicon-sequelize-plain"></i>
+                <i className="devicon-sequelize-plain"></i>
                 <p className="oneicondescription">Sequelize</p>
             </div>
         </div>
