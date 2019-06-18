@@ -204,6 +204,11 @@ i {
   transform: scale(1.2)
 }
 
+@media only screen and (max-width: 999px) {
+  .project1 {
+    margin-top: 800px;
+  }
+}
 
 @media only screen and (max-width: 600px) {
   .header {
@@ -218,7 +223,7 @@ i {
   }
 
   .project1 {
-    margin-top: 800px;
+    margin-top: 900px;
   }
 
   .project1 img, .project2 img, .project3 img, .projectuxdi img, .project4 img {
@@ -235,7 +240,20 @@ i {
 
 }
 
-@media only screen and (max-width: 391px) {
+@media only screen and (max-width: 500px) {
+  .project1 {
+    margin-top: 1000px;
+  }
+}
+
+@media only screen and (max-width: 411px) {
+  .project1 {
+    margin-top: 1100px;
+  }
+}
+
+
+@media only screen and (max-width: 374px) {
   .project1 {
     margin-top: 1600px;
   }
