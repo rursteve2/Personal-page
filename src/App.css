@@ -32,8 +32,8 @@ body {
 }
 
 .project1, .project2, .project3, .projectuxdi, .project4 {
-  margin: 300px auto;
-  padding: 50px 0 50px 0;
+  margin: 200px auto;
+  padding: 50px 10% 50px 10%;
   max-width: 70%;
   display: grid;
   grid-template-columns: 6fr 4fr;
@@ -42,6 +42,9 @@ body {
   grid-gap: 15px;
   height: 100%;
   width: 95%;
+}
+.project1:hover, .project2:hover, .project3:hover, .projectuxdi:hover, .project4:hover {
+  background-color: rgba(27, 27, 27, 0.7)
 }
 
 .project1 {
@@ -179,9 +182,6 @@ i {
 .oneicondescription {
   position: absolute;
   top: 70px;
-  /* bottom: 0;
-  left: 0;
-  right: 0; */
   height: 100%;
   width: 100%;
   margin-top: 0;
@@ -221,6 +221,27 @@ h6 {
 a {
   text-decoration: none;
 }
+
+.contact {
+  display: flex;
+  flex-direction: column;
+  margin: 0 25%;
+}
+
+.contact input, textarea {
+  font-family: 'Roboto', sans-serif;
+  margin-top: 10px;
+  border-radius: 3px;
+  background-color: rgb(0, 0, 0);
+  color: white;
+  border: none;
+}
+
+.contact a {
+  margin-top: 10px;
+}
+
+
 
 @media only screen and (max-width: 999px) {
   .project1 {

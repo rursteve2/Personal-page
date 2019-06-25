@@ -5,9 +5,9 @@ class Header extends Component {
     return (
       <div className="header">
         <div className="contacticons">
-          <a href="https://github.com/rursteve2"><i className="fab fa-github-square"></i></a>
-          <a href="https://www.linkedin.com/in/chenstephen2"><i className="fab fa-linkedin"></i></a>
-          <a href="mailto:chenstephen2@gmail.com">
+          <a href="https://github.com/rursteve2" target="_blank"><i className="fab fa-github-square"></i></a>
+          <a href="https://www.linkedin.com/in/chenstephen2" target="_blank"><i className="fab fa-linkedin"></i></a>
+          <a href="mailto:chenstephen2@gmail.com" target="_blank">
           <i className="fas fa-envelope-square"></i></a>
         </div>
       </div>
