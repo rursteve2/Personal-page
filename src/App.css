@@ -222,10 +222,15 @@ a {
   text-decoration: none;
 }
 
+.project4 {
+  margin-bottom: 100px;
+}
+
 .contact {
   display: flex;
   flex-direction: column;
   margin: 0 25%;
+  margin-bottom: 100px;
 }
 
 .contact input, textarea {
