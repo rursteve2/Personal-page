@@ -12,8 +12,10 @@ class Body extends Component {
     return (
       <div className="body">
         <div className="name">
-            <h1>Stephen Chen</h1>
-            <h2>Full Stack Web Developer</h2>
+          <div className="bodyhead">
+              <h1>Stephen Chen</h1>
+              <h2>Full Stack Web Developer</h2>
+          </div>
         </div>
         <AboutMe/>
         <Project1 />

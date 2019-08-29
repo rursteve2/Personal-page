@@ -9,48 +9,28 @@ class AboutMe extends Component {
 
         <div className="techicons">
             <div className="oneicon">
-                <i className="devicon-visualstudio-plain colored"></i>
-                <p className="oneicondescription">VSCode</p>
-            </div>
-            <div className="oneicon">
-                <i className="devicon-amazonwebservices-original colored"></i>
-                <p className="oneicondescription">Amazon Web Services</p>
-            </div>
-            <div className="oneicon">
-                <i className="devicon-css3-plain colored"></i>
-                <p className="oneicondescription">CSS3</p>
-            </div>
-            <div className="oneicon">
-                <i className="devicon-html5-plain colored"></i>
-                <p className="oneicondescription">HTML5</p>
-            </div>
-            <div className="oneicon">
-                <i className="devicon-github-plain"></i>
-                <p className="oneicondescription">Github</p>
-            </div>
-            <div className="oneicon">
-                <i className="devicon-git-plain colored"></i>
-                <p className="oneicondescription">Git</p>
-            </div>
-            <div className="oneicon">
                 <i className="devicon-javascript-plain colored"></i>
                 <p className="oneicondescription">Javascript</p>
             </div>
             <div className="oneicon">
+                <i className="devicon-react-original colored"></i>
+                <p className="oneicondescription">React</p>
+            </div>
+            <div className="oneicon">
                 <i className="devicon-nodejs-plain colored"></i>
-                <p className="oneicondescription">Node.js</p>
+                <p className="oneicondescription">Node</p>
             </div>
             <div className="oneicon">
                 <i className="devicon-express-original"></i>
-                <p className="oneicondescription">Express.js</p>
-            </div>
-            <div className="oneicon">
-                <i className="devicon-react-original colored"></i>
-                <p className="oneicondescription">React.js</p>
+                <p className="oneicondescription">Express</p>
             </div>
             <div className="oneicon">
                 <i className="devicon-postgresql-plain colored"></i>
                 <p className="oneicondescription">PostgreSQL</p>
+            </div>
+            <div className="oneicon">
+                <i class="devicon-docker-plain colored"></i>
+                <p className="oneicondescription">Docker</p>
             </div>
             <div className="oneicon">
                 <i className="devicon-ruby-plain colored"></i>
@@ -61,13 +41,35 @@ class AboutMe extends Component {
                 <p className="oneicondescription">Rails</p>
             </div>
             <div className="oneicon">
-                <i className="devicon-slack-plain"></i>
-                <p className="oneicondescription">Slack</p>
+                <i className="devicon-css3-plain colored"></i>
+                <p className="oneicondescription">CSS3</p>
             </div>
+            <div className="oneicon">
+                <i className="devicon-html5-plain colored"></i>
+                <p className="oneicondescription">HTML5</p>
+            </div>
+            <div className="oneicon">
+                <i className="devicon-git-plain colored"></i>
+                <p className="oneicondescription">Git</p>
+            </div>
+            <div className="oneicon">
+                <i className="devicon-visualstudio-plain colored"></i>
+                <p className="oneicondescription">VSCode</p>
+            </div>
+            <div className="oneicon">
+                <i className="devicon-amazonwebservices-original colored"></i>
+                <p className="oneicondescription">Amazon Web Services</p>
+            </div>
+            <div className="oneicon">
+                <i className="devicon-github-plain"></i>
+                <p className="oneicondescription">Github</p>
+            </div>
+            
             <div className="oneicon">
                 <i className="devicon-sequelize-plain"></i>
                 <p className="oneicondescription">Sequelize</p>
             </div>
+            
         </div>
       </div>
     );
