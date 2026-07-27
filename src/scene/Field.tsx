@@ -304,7 +304,11 @@ export function Field({ reducedMotion }: { reducedMotion: boolean }) {
       gl.deleteBuffer(seedBuffer)
       gl.deleteVertexArray(vao)
       gl.deleteProgram(program)
-      gl.getExtension('WEBGL_lose_context')?.loseContext()
+      // Deliberately NOT loseContext(). StrictMode runs effects twice in dev:
+      // mount, clean up, mount again — against the same canvas element. Losing
+      // the context in cleanup means the second mount's getContext() hands back
+      // a dead context and nothing ever draws. Releasing the GL objects is
+      // enough; the context itself goes when the canvas is collected.
     }
   }, [reducedMotion])
 
