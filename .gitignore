@@ -72,6 +72,10 @@ typings/
 # production
 /build
 
+# vite build output
+/dist
+*.tsbuildinfo
+
 # misc
 .DS_Store
 .env.local

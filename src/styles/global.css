@@ -1,0 +1,727 @@
+:root {
+  /* Navy → black base. Nothing on this page is coloured except --accent. */
+  --void: #05070d;
+  --deep: #080c15;
+  --panel: #0d121e;
+  --line: #1a2233;
+  --line-bright: #26314a;
+
+  --ink: #eef2f8;
+  --ink-dim: #98a3b8;
+  --ink-faint: #5c6883;
+
+  --accent: #5ea9ff;
+  --accent-deep: #2f6fd0;
+  --accent-glow: rgba(94, 169, 255, 0.55);
+
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Fluid page gutter — wide on desktop, tight on phones. */
+  --gutter: clamp(1.25rem, 5vw, 5.5rem);
+  --measure: 68rem;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* The sky. The 3D canvas is transparent and the terrain fades out into this, so
+   the horizon dissolves instead of ending on a hard line.
+
+   This is a fixed pseudo-element rather than `background-attachment: fixed` on
+   the body. That property forces the browser to repaint the whole gradient on
+   every scroll frame; a fixed layer is promoted once and then just composited,
+   which is the single biggest scroll win on this page. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 55% at 50% 62%,
+      rgba(94, 169, 255, 0.14) 0%,
+      rgba(94, 169, 255, 0.04) 38%,
+      transparent 70%
+    ),
+    linear-gradient(180deg, #04060b 0%, #05070d 45%, #070b14 72%, #05070d 100%);
+}
+
+#root {
+  position: relative;
+  isolation: isolate;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--void);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Skip straight past the canvas for keyboard users. */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: var(--accent);
+  color: var(--void);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+.skip:focus {
+  left: var(--gutter);
+  top: 0.75rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- canvas */
+
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.scene canvas {
+  display: block;
+}
+
+/* ---------------------------------------------------------------- layout */
+
+.page {
+  position: relative;
+  z-index: 1;
+}
+
+.shell {
+  width: 100%;
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  position: relative;
+  padding-block: clamp(4.5rem, 11vh, 7.5rem);
+}
+
+.section__label {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0 0 clamp(2.5rem, 6vw, 4rem);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.section__label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line-bright), transparent);
+}
+
+.section__label b {
+  font-weight: 500;
+  color: var(--accent);
+}
+
+/* ------------------------------------------------------------------- nav */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: clamp(1rem, 2.5vw, 1.75rem) var(--gutter);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  mix-blend-mode: normal;
+  transition: background 0.4s var(--ease);
+}
+
+.nav[data-stuck='true'] {
+  /* No backdrop-filter: it sits over a live canvas, so the browser would
+     re-blur the backdrop on every frame it is visible. A gradient scrim reads
+     almost identically here and costs nothing. */
+  background: linear-gradient(180deg, rgba(4, 6, 11, 0.94) 0%, rgba(4, 6, 11, 0.72) 70%, transparent 100%);
+  border-bottom: 1px solid transparent;
+}
+
+.nav__mark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.3rem 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+  cursor: default;
+  transition: opacity 0.35s var(--ease);
+}
+
+/* Inert at the top of the page — there is nowhere to go back to yet. */
+.nav__mark[data-active='false'] {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.nav__mark[data-active='true'] {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.nav__initials,
+.nav__top {
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+}
+
+.nav__top {
+  position: absolute;
+  left: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  opacity: 0;
+  transform: translateY(4px);
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.toast[data-visible='true'] {
+  opacity: 1;
+  transform: translate3d(-50%, 0, 0);
+  visibility: visible;
+}
+
+.nav__top svg {
+  width: 10px;
+  height: 10px;
+}
+
+/* Swap initials for the affordance on hover/focus, once it is actually live. */
+.nav__mark[data-active='true']:hover .nav__initials,
+.nav__mark[data-active='true']:focus-visible .nav__initials {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.nav__mark[data-active='true']:hover .nav__top,
+.nav__mark[data-active='true']:focus-visible .nav__top {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.nav__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.nav__links {
+  display: flex;
+  gap: clamp(1rem, 3vw, 2.25rem);
+}
+
+.nav__link {
+  position: relative;
+  color: var(--ink-dim);
+  padding-block: 0.2rem;
+  transition: color 0.25s var(--ease);
+}
+
+.nav__link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s var(--ease);
+}
+
+.nav__link:hover,
+.nav__link[aria-current='true'] {
+  color: var(--ink);
+}
+
+.nav__link:hover::after,
+.nav__link[aria-current='true']::after {
+  transform: scaleX(1);
+}
+
+
+/* ------------------------------------------------------------------- acts */
+
+/* The outer element's height is the act's scroll budget; the inner one pins to
+   the viewport for the whole of it. That's what buys scroll distance without
+   adding copy. */
+.act {
+  position: relative;
+}
+
+.act__pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* A scrim under the text. The field is bright and uniform enough to compete
+   with type at this density; a single gradient buys contrast for nothing —
+   no blur, no extra layer to composite per frame. */
+.act__pin::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    130% 90% at 22% 78%,
+    rgba(4, 6, 11, 0.88) 0%,
+    rgba(4, 6, 11, 0.55) 34%,
+    transparent 68%
+  );
+}
+
+.act__pin > * {
+  width: 100%;
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Launch sits low so the landscape has the upper two thirds. */
+.launch {
+  justify-content: flex-end;
+  padding-bottom: clamp(5rem, 14vh, 9rem);
+}
+
+/* Reveal.
+
+   Content is visible by default. It is hidden ONLY while its act explicitly
+   says `data-revealed="false"` — so if the observer never runs, or React never
+   sets the attribute, the page still reads. Nothing here is driven by scroll
+   position: once an act has been revealed its content stays legible until it
+   physically leaves the viewport. */
+.reveal {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+
+.act[data-revealed='false'] .reveal {
+  opacity: 0;
+  transform: translate3d(0, 26px, 0);
+}
+
+/* Stagger, in the CSS rather than per-frame in JS. */
+.act[data-revealed='true'] .reveal {
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .act[data-revealed='false'] .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ascent__line {
+  margin: 0;
+  max-width: 24ch;
+  font-size: clamp(1.4rem, 4.4vw, 2.9rem);
+  font-weight: 400;
+  line-height: 1.16;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  will-change: transform, opacity;
+}
+
+/* ------------------------------------------------------------------ groups */
+
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4vh, 2.6rem);
+}
+
+.group {
+  display: grid;
+  grid-template-columns: minmax(7rem, 13rem) 1fr;
+  gap: clamp(0.5rem, 2vw, 2rem);
+  align-items: baseline;
+  padding-top: clamp(0.9rem, 2vh, 1.3rem);
+  border-top: 1px solid var(--line);
+  will-change: transform, opacity;
+}
+
+.group__label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.group__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem clamp(1rem, 3vw, 2.2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.group__items li {
+  font-size: clamp(1rem, 2.6vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+@media (max-width: 620px) {
+  .group {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+/* ------------------------------------------------------- hero typography */
+
+.hero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 0 clamp(1rem, 2.5vw, 1.6rem);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.hero__title {
+  margin: 0;
+  will-change: transform, opacity;
+  font-size: clamp(3.1rem, 13.5vw, 9.5rem);
+  font-weight: 500;
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+  color: var(--ink);
+}
+
+.hero__title span {
+  display: block;
+}
+
+.hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem 1.4rem;
+  margin-top: clamp(1.4rem, 3.5vw, 2.2rem);
+  font-family: var(--font-mono);
+  font-size: clamp(0.78rem, 1.6vw, 0.92rem);
+  letter-spacing: 0.06em;
+  color: var(--ink-dim);
+}
+
+.hero__meta i {
+  font-style: normal;
+  color: var(--ink-faint);
+}
+
+.hero__hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.25rem, 3vh, 2rem);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.hero__hint > span:first-child {
+  width: 26px;
+  height: 1px;
+  background: var(--line-bright);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Pointer-dependent wording. Coarse pointers get "drag", everything else "move". */
+.hint-coarse {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .hint-fine {
+    display: none;
+  }
+  .hint-coarse {
+    display: inline;
+  }
+}
+
+.hero__hint > span:first-child::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform-origin: left;
+  animation: sweep 2.6s var(--ease) infinite;
+}
+
+@keyframes sweep {
+  0% { transform: scaleX(0); transform-origin: left; }
+  45% { transform: scaleX(1); transform-origin: left; }
+  55% { transform: scaleX(1); transform-origin: right; }
+  100% { transform: scaleX(0); transform-origin: right; }
+}
+
+/* --------------------------------------------------------------- contact */
+
+.copy {
+  position: relative;
+  margin-top: clamp(0.5rem, 2vh, 1.5rem);
+  will-change: transform, opacity;
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 6.2vw, 3.6rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  cursor: pointer;
+  text-align: left;
+  word-break: break-word;
+}
+
+.copy__text {
+  position: relative;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size 0.45s var(--ease);
+}
+
+.copy:hover .copy__text,
+.copy:focus-visible .copy__text {
+  background-size: 100% 1px;
+}
+
+.copy__badge {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: clamp(0.6rem, 1.4vw, 0.7rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border: 1px solid var(--line-bright);
+  border-radius: 100px;
+  padding: 0.32rem 0.7rem;
+  transition: color 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+
+.copy[data-copied='true'] .copy__badge {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.links {
+  margin-top: clamp(1.75rem, 5vh, 3rem);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+}
+
+.links a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--ink-dim);
+  padding-block: 0.35rem;
+  transition: color 0.3s var(--ease);
+}
+
+.links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0.1rem;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s var(--ease);
+}
+
+.links a:hover {
+  color: var(--accent);
+}
+
+.links a:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.links svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+/* ---------------------------------------------------------------- footer */
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding: 2rem var(--gutter) clamp(2rem, 5vh, 3rem);
+  max-width: var(--measure);
+  margin-inline: auto;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+}
+
+.footer a {
+  color: var(--ink-faint);
+  transition: color 0.3s var(--ease);
+}
+
+.footer a:hover {
+  color: var(--accent);
+}
+
+/* -------------------------------------------------------------- easter egg */
+
+.toast {
+  opacity: 0;
+  transform: translate3d(-50%, 14px, 0);
+  visibility: hidden;
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease), visibility 0.4s;
+  position: fixed;
+  left: 50%;
+  bottom: clamp(1.5rem, 5vh, 3rem);
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.15rem;
+  border: 1px solid var(--accent);
+  background: rgba(5, 7, 13, 0.95);
+  box-shadow: 0 0 40px rgba(94, 169, 255, 0.25);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .hero__hint > span:first-child::after {
+    transform: scaleX(1);
+  }
+}
