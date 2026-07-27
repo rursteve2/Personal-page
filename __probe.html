@@ -1,0 +1,40 @@
+<!doctype html><meta charset=utf-8>
+<meta name=viewport content="width=device-width, initial-scale=1">
+<link rel=stylesheet href="/assets/index-muA0_hhR.css">
+<style>#probe{position:fixed;inset:auto 0 0 0;z-index:9999;max-height:55vh;overflow:auto;
+background:#180000;color:#ff9a9a;font:12px/1.45 monospace;padding:8px;white-space:pre-wrap}
+#probe:empty{display:none}</style>
+<div id="root"></div>
+<div id="probe" style="display:block"></div>
+<script>
+const PROBE=1, SCROLL=0;
+const box=document.getElementById('probe'); const seen=[];
+if(!PROBE) box.style.display='none';
+const push=(t,a)=>{seen.push(t+': '+a.map(x=>x&&x.stack?x.stack:String(x)).join(' ').slice(0,800));
+  if(PROBE) box.textContent=seen.join('\n\n');};
+const ce=console.error, cw=console.warn;
+console.error=(...a)=>{push('ERROR',a);ce.apply(console,a)};
+console.warn=(...a)=>{push('WARN',a);cw.apply(console,a)};
+addEventListener('error',e=>push('WINDOW',[e.message,e.filename+':'+e.lineno]));
+addEventListener('unhandledrejection',e=>push('REJECT',[e.reason]));
+// Nudge the pointer so the craft leaves autopilot and banks, and scroll if asked.
+setTimeout(()=>{
+  dispatchEvent(new PointerEvent('pointermove',{clientX:innerWidth*0.68,clientY:innerHeight*0.42}));
+  if(SCROLL) scrollTo(0,SCROLL);
+  if(PROBE){const c=document.querySelector('.scene canvas');
+    const de=document.documentElement, nav=document.querySelector('.nav');
+    const nl=document.querySelector('.nav__links');
+    push('INFO',['inner='+innerWidth+'x'+innerHeight+
+      ' docScrollW='+de.scrollWidth+' bodyScrollW='+document.body.scrollWidth+
+      ' overflowX='+(de.scrollWidth>innerWidth) +
+      ' navRight='+(nav?Math.round(nav.getBoundingClientRect().right):'-')+
+      ' linksRight='+(nl?Math.round(nl.getBoundingClientRect().right):'-')+
+      ' heroOpacity='+(document.querySelector('.hero__title span')?getComputedStyle(document.querySelector('.hero__title span')).opacity:'-')]);
+    push('CRAFT',['mounted='+window.__craftMounted+' frames='+window.__craftFrames+
+      ' running='+window.__craftRunning+' ref='+window.__craftRef+' pos='+window.__craftPos+
+      ' vis='+window.__craftVis+' scale='+window.__craftScale+
+      ' screen='+window.__craftScreen+' cam='+window.__camPos+'\nKIDS: '+window.__craftKids+'\nCHAIN: '+window.__craftChain]);
+    if(!seen.length) box.textContent='probe: clean';}
+},3000);
+</script>
+<script type="module" crossorigin src="/assets/index-B_d2ilmF.js"></script>
