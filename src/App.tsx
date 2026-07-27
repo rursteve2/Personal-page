@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { Field } from './scene/Field'
 import { Arrival } from './components/Arrival'
 import { Ascent } from './components/Ascent'
 import { Footer } from './components/Footer'
@@ -9,11 +9,6 @@ import { useHashLanding } from './hooks/useHashLanding'
 import { useKonami } from './hooks/useKonami'
 import { useReducedMotion } from './hooks/useReducedMotion'
 import { useSceneInput } from './hooks/useSceneInput'
-
-// three is ~600kB of the bundle. Splitting it out lets the text paint first;
-// the landscape fades in a moment later over the sky gradient, which reads as
-// intentional rather than as a load.
-const Scene = lazy(() => import('./scene/Scene').then((m) => ({ default: m.Scene })))
 
 export default function App() {
   const reducedMotion = useReducedMotion()
@@ -28,9 +23,9 @@ export default function App() {
         Skip to content
       </a>
 
-      <Suspense fallback={null}>
-        <Scene reducedMotion={reducedMotion} />
-      </Suspense>
+      {/* No lazy chunk any more: without three this is a few kB, so splitting
+          it would cost a round trip to save nothing. */}
+      <Field reducedMotion={reducedMotion} />
 
       <Nav />
 
