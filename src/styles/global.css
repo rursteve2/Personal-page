@@ -328,6 +328,9 @@ a {
   position: sticky;
   top: 0;
   height: 100svh;
+  /* The nav is fixed over this; without the clearance a section label can sit
+     underneath it on short viewports. */
+  padding-top: clamp(3.5rem, 8vh, 5rem);
   display: flex;
   flex-direction: column;
   justify-content: center;

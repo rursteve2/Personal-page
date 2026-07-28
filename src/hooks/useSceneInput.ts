@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { clamp, scene } from '../scene/state'
 import { ACTS } from '../scene/timeline'
+import { measureActs, type ActGeometry } from '../lib/acts'
 
 /**
  * Feeds pointer and scroll into the scene store.
@@ -18,19 +19,9 @@ import { ACTS } from '../scene/timeline'
  */
 export function useSceneInput() {
   useEffect(() => {
-    type Band = { top: number; travel: number }
-    let bands: Band[] = []
-
+    let bands: ActGeometry[] = []
     const measure = () => {
-      bands = ACTS.map((id) => {
-        const el = document.getElementById(id)
-        if (!el) return { top: 0, travel: 1 }
-        const top = el.offsetTop
-        // The sticky child is one viewport tall, so the distance actually spent
-        // pinned is the act's height minus that viewport.
-        const travel = Math.max(el.offsetHeight - window.innerHeight, 1)
-        return { top, travel }
-      })
+      bands = measureActs()
     }
 
     let lastY = window.scrollY

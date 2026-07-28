@@ -37,11 +37,12 @@ function pickQuality(): Quality {
   // pixels that are already lit.
   //
   // Phones get the HIGHEST dpr cap, which looks backwards but follows from the
-  // arithmetic: a 390x844 viewport at dpr 2 is ~1.3M device pixels, while a
-  // 1512x900 desktop at dpr 1.75 is ~4.2M. The small viewport is what makes the
-  // resolution affordable, and phone screens are where low dpr shows most.
+  // arithmetic: a 390x844 viewport at dpr 3 is ~3.0M device pixels, still less
+  // than a 1512x900 desktop at dpr 1.75 (~4.2M). The small viewport is what
+  // makes native resolution affordable, and phone screens — where pixel density
+  // is highest — are exactly where a low dpr cap shows as softness.
   // The governor still steps any of these down if a device can't keep up.
-  if (width < 700 || cores <= 4) return { particles: 11000, maxDpr: 2 }
+  if (width < 700 || cores <= 4) return { particles: 11000, maxDpr: 3 }
   if (width < 1200) return { particles: 18000, maxDpr: 1.75 }
   return { particles: 30000, maxDpr: 1.75 }
 }

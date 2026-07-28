@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { scrollToAct } from '../hooks/useHashLanding'
+import { scrollToAct } from '../lib/acts'
 
 const SECTIONS = [
   { id: 'stack', label: 'stack' },
