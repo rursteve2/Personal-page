@@ -175,11 +175,6 @@ a {
   background: linear-gradient(90deg, var(--line-bright), transparent);
 }
 
-.section__label b {
-  font-weight: 500;
-  color: var(--accent);
-}
-
 /* ------------------------------------------------------------------- nav */
 
 .nav {

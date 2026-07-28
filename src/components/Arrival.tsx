@@ -35,7 +35,7 @@ export function Arrival() {
     <Act id="arrival" screens={1.9} className="arrival">
       <div className="arrival__inner">
         <h2 className="section__label reveal" style={{ '--i': 0 } as CSSProperties}>
-          <b>02</b> Contact
+          Contact
         </h2>
 
         <button

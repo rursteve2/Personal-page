@@ -24,7 +24,7 @@ export function Stack() {
     <Act id="stack" screens={2.2} className="stack-act">
       <div className="stack-act__inner">
         <h2 className="section__label reveal" style={{ '--i': 0 } as CSSProperties}>
-          <b>01</b> Stack
+          Stack
         </h2>
 
         <div className="groups">

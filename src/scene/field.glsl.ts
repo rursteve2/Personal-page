@@ -142,11 +142,12 @@ void main() {
   gl_Position = uProjection * mv;
 
   float depth = -mv.z;
-  gl_PointSize = clamp(
-    uSize * uPixelRatio * (1.0 + uHyper * 0.8) * (420.0 / max(depth, 30.0)),
-    1.1,
-    3.4
-  );
+  // Clamp in CSS pixels, THEN scale to device pixels. Clamping after the DPR
+  // multiply pins the maximum at 3.4 *device* px, which is 3.4 CSS px on a
+  // DPR-1 desktop but barely 1.1 on a DPR-3 phone — the field came out roughly
+  // three times finer on mobile for the same scene.
+  float sizeCss = clamp(uSize * (1.0 + uHyper * 0.8) * (420.0 / max(depth, 30.0)), 0.9, 3.0);
+  gl_PointSize = sizeCss * uPixelRatio;
 
   vGlow = mix(0.25, 1.0, 1.0 - clamp(depth / 1500.0, 0.0, 1.0)) * (0.55 + aSeed.y * 0.45);
   vSeed = aSeed.z;
