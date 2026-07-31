@@ -363,12 +363,17 @@ a {
    there is no quantisation left to see. Smoothstep arrives at both ends with zero
    slope, so it meets the flat section without a kink.
 
-   Peak 0.88, matching the original, and in the page's own black rather than a
-   near-black of its own. Both matter for the same reason: at 0.55 in #04060b only
-   just over half the field was covered, so the plateau read as a translucent grey
-   panel laid over the page instead of as darkness — the text sat on a slab you
-   could see. Full-strength black is indistinguishable from the page behind it, so
-   the text blends into the background and only the fades are visible at all. */
+   In the page's own black, not a near-black of its own. At 0.55 in #04060b the
+   plateau bottomed out at rgb(2, 3, 6) over black — a floor it could never get
+   below — so the text sat on a visibly grey slab. Pure black composites to exactly
+   rgb(0, 0, 0), indistinguishable from the page behind it.
+
+   Peak 0.68, which is a coverage figure rather than a copy of the original's peak.
+   The original was radial and only touched 0.88 at a single point; across the band
+   this flat plateau occupies it averaged 0.437, so matching its peak meant running
+   twice the coverage it ever had and large stretches of the scroll went to solid
+   black. 0.68 lets 32% of the field through against 12%, and still measures 11:1
+   against a saturated cluster. */
 .act__pin::before {
   content: '';
   position: absolute;
@@ -379,18 +384,18 @@ a {
     linear-gradient(
       180deg,
       rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0.065) 5%,
-      rgba(0, 0, 0, 0.228) 10%,
-      rgba(0, 0, 0, 0.44) 15%,
-      rgba(0, 0, 0, 0.652) 20%,
-      rgba(0, 0, 0, 0.815) 25%,
-      rgba(0, 0, 0, 0.88) 30%,
-      rgba(0, 0, 0, 0.88) 82%,
-      rgba(0, 0, 0, 0.815) 85%,
-      rgba(0, 0, 0, 0.652) 88%,
-      rgba(0, 0, 0, 0.44) 91%,
-      rgba(0, 0, 0, 0.228) 94%,
-      rgba(0, 0, 0, 0.065) 97%,
+      rgba(0, 0, 0, 0.05) 5%,
+      rgba(0, 0, 0, 0.176) 10%,
+      rgba(0, 0, 0, 0.34) 15%,
+      rgba(0, 0, 0, 0.504) 20%,
+      rgba(0, 0, 0, 0.63) 25%,
+      rgba(0, 0, 0, 0.68) 30%,
+      rgba(0, 0, 0, 0.68) 82%,
+      rgba(0, 0, 0, 0.63) 85%,
+      rgba(0, 0, 0, 0.504) 88%,
+      rgba(0, 0, 0, 0.34) 91%,
+      rgba(0, 0, 0, 0.176) 94%,
+      rgba(0, 0, 0, 0.05) 97%,
       rgba(0, 0, 0, 0) 100%
     );
 }

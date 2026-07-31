@@ -476,3 +476,23 @@ original 0.88. The three defects that were actually present — concentric ring
 banding, reflowing with viewport aspect, and a non-black colour that could not
 reach the page's own black — are gone. Everything I added along the way to
 compensate (halo, dither) turned out to be scaffolding and is gone too.
+
+### Round 5, sixth pass — 0.88 was the wrong statistic
+
+Reported: portions of the page go completely black while scrolling; let more of
+the field through.
+
+I had matched the original scrim's *peak* alpha. But the original was radial, so it
+only reached 0.88 at a single point and fell away from there. Measured across the
+30–82% band that the flat plateau occupies, the original averaged **0.437** — so
+matching its peak meant running roughly **twice** the coverage it ever had, over
+the full width, for half the viewport height. Where the field was already sparse,
+12% of sparse is nothing, and long stretches of the scroll went to solid black.
+
+Plateau 0.88 → **0.68**: 32% of the field survives instead of 12%, still 11:1
+against a saturated cluster (AAA). Still darker than the original's average, so the
+darkness stays; it just no longer swallows the field whole.
+
+Lesson: when matching a reference, match the statistic that describes what it
+*did*, not the one that is easiest to read off its definition. A radial's peak
+describes one pixel; a flat plateau's peak describes half the screen.
