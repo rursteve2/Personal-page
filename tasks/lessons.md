@@ -63,6 +63,48 @@ changes the other. Give them separate inputs, or bias the coupling deliberately
 Corollary: after tuning something for a functional reason, check what else reads
 that value before calling it done.
 
+## Relative and absolute thresholds fail in opposite directions
+
+The field's quality governor called any frame over a fixed 22ms slow. That assumed
+a 60Hz display, so on a 30Hz panel it flagged *every* frame and ratcheted the
+resolution to its floor in 2.2 seconds — for nothing, since the panel, not the GPU,
+was the constraint. The obvious fix was to measure the display's actual cadence and
+flag frames relative to it.
+
+That fix quietly broke the other half. A device that is *uniformly* slow calibrates
+its own slowness as the baseline and then reports every frame as normal, so a
+machine stuck at 25fps — which the crude 22ms rule did catch — sailed past. I only
+found it because I simulated the new code against a "genuinely slow GPU" case
+instead of only re-running the cases that motivated the change.
+
+Rule: a relative threshold trades false positives for false negatives. When
+replacing an absolute test with a relative one, keep both — the relative test for
+"worse than this machine's normal", the absolute for "bad by any standard" — and
+clamp the measured baseline so the thing being measured cannot inflate its own
+threshold.
+
+Corollary for verification: when a change fixes case A, the test set has to include
+the case the *old* code got right, not just the case that prompted the change.
+
+## Removing the broken thing is not the same as solving the problem
+
+The act scrim banded into visible concentric rings, so I removed it and replaced it
+with a text-shadow halo — which fixed the banding perfectly, measured well on
+contrast, and was wrong. Stephen's reaction was immediate: the type now floated on
+the field with nothing under it. A halo is invisible by design; it does legibility,
+not composition. The scrim was doing a *second* job I had not accounted for —
+giving the text something to sit on — and my contrast numbers could not see it,
+because contrast ratios do not measure whether a layout reads as deliberate.
+
+Rule: before deleting an element that has a defect, separate what is broken about
+it from what it was for. Here the defect was the gradient's *shape* (a percentage-
+sized ellipse that banded and reflowed with the viewport), not its existence. The
+right fix was to keep the scrim and change the shape — vertical, subtler, dithered.
+
+Corollary: a measurement that improves is not proof the change is good. 16.6:1 vs
+15.6:1 said the halo was strictly better on the axis I had chosen to measure, which
+made it easy to miss that I had picked the wrong axis.
+
 ## Don't hand-author "linear" colour values
 
 Chasing a colour-management issue, I replaced `new THREE.Color('#5ea9ff')` with
@@ -81,3 +123,26 @@ If a shader genuinely needs a linear constant, compute it, don't guess:
 Also: reference the design tokens. These uniforms now use the same `#5ea9ff` /
 `#2f6fd0` as the CSS `--accent` / `--accent-deep`, so the 3D scene and the page
 cannot drift apart.
+
+## Gradient stops interpolate linearly — that is a visible artifact, not a detail
+
+A scrim faded with two stops (`transparent 0%` → `.55 26%`) read as a hard line
+across the page. I had assumed any visible edge in a gradient was 8-bit banding and
+went straight to dithering. It was not: CSS interpolates linearly between stops, so
+the ramp holds one constant slope and then changes to another *instantly* where it
+meets the flat section. The eye detects slope discontinuities strongly (Mach
+banding), and it happens at any colour depth — dithering cannot touch it.
+
+Rule: a soft fade needs its *slope* to be continuous, not just its value. Sample an
+easing curve at several stops — smoothstep reaches both ends with zero slope, so it
+joins a flat region without a kink. Two stops is a ramp, not a fade.
+
+And: two different artifacts can look identical. Banding is quantisation, Mach
+banding is perceptual. Before reaching for the fix, work out which one is present —
+here both were, and fixing only the one I assumed left the symptom in place.
+
+Corollary on measurement: my dither model treated `feTurbulence` as uniform noise
+over 0–255. Real `fractalNoise` clusters near mid-grey, so the actual amplitude was
+~2.5x smaller than modelled and dithered nothing. When simulating something whose
+distribution I have not verified, the assumed distribution is the weakest part of
+the result — say so, rather than reporting the number as measured.

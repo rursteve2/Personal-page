@@ -1,6 +1,6 @@
 :root {
-  /* Navy → black base. Nothing on this page is coloured except --accent. */
-  --void: #05070d;
+  /* Black base. Nothing on this page is coloured except --accent and the field. */
+  --void: #000000;
   --deep: #080c15;
   --panel: #0d121e;
   --line: #1a2233;
@@ -46,28 +46,16 @@ body {
   overflow-x: hidden;
 }
 
-/* The sky. The 3D canvas is transparent and the terrain fades out into this, so
-   the horizon dissolves instead of ending on a hard line.
+/* The sky used to be a fixed pseudo-element here, carrying a navy vertical
+   gradient and a blue radial glow. Both are gone: the page is black, and the
+   colour on it comes from the field, which is additive and reads better against
+   true black than against #05070d anyway.
 
-   This is a fixed pseudo-element rather than `background-attachment: fixed` on
-   the body. That property forces the browser to repaint the whole gradient on
-   every scroll frame; a fixed layer is promoted once and then just composited,
-   which is the single biggest scroll win on this page. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      120% 55% at 50% 62%,
-      rgba(94, 169, 255, 0.14) 0%,
-      rgba(94, 169, 255, 0.04) 38%,
-      transparent 70%
-    ),
-    linear-gradient(180deg, #04060b 0%, #05070d 45%, #070b14 72%, #05070d 100%);
-}
+   Deleting it removes three things at once — the tint that stopped the page
+   looking black, the last large soft gradient that could band, and the layer
+   itself. A flat background colour repaints nothing on scroll, so the reason the
+   pseudo-element existed (avoiding `background-attachment: fixed`) no longer
+   applies either. */
 
 #root {
   position: relative;
@@ -199,7 +187,7 @@ a {
   /* No backdrop-filter: it sits over a live canvas, so the browser would
      re-blur the backdrop on every frame it is visible. A gradient scrim reads
      almost identically here and costs nothing. */
-  background: linear-gradient(180deg, rgba(4, 6, 11, 0.94) 0%, rgba(4, 6, 11, 0.72) 70%, transparent 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.94) 0%, rgba(0, 0, 0, 0.72) 70%, transparent 100%);
   border-bottom: 1px solid transparent;
 }
 
@@ -337,21 +325,74 @@ a {
   overflow: hidden;
 }
 
-/* A scrim under the text. The field is bright and uniform enough to compete
-   with type at this density; a single gradient buys contrast for nothing —
-   no blur, no extra layer to composite per frame. */
+/* The scrim under the text.
+
+   Vertical, not radial. The previous version was an ellipse sized in percentages
+   of the pin — `130% 90% at 22% 78%` — so its aspect ran from 2.43 on a desktop
+   to 0.67 on a phone and its centre slid with the viewport. It was not one design
+   adapting to screen size, it was a different shape on every device. A vertical
+   gradient depends only on height, and the pin is always 100svh, so this is
+   proportionally identical everywhere.
+
+   Dithered, because it would otherwise band exactly as the radial one did. Ring
+   spacing is (1/255) / (rate of alpha change), so any large soft gradient spreads
+   256 steps over hundreds of pixels and every step reads as a visible edge —
+   concentric circles when radial, horizontal lines when linear.
+
+   There was a noise dither here for exactly that reason, and it had to go. Its
+   alpha is pinned to 1 and its mean is mid-grey, so at 2.2% over pure black it
+   settles at rgb(3, 3, 3) — nothing against a lit field, but in the plateau the
+   field is down to 12%, so over empty sky that veil became the brightest thing
+   left and the whole backdrop read as a flat grey panel.
+
+   It is not needed any more either. Banding needs a smooth backdrop to show up
+   on; the page behind this is now pure black plus discrete particles, and black
+   under a black gradient stays exactly black at every stop. Where the field *is*
+   bright enough to band, the steps measure 5-12px, which is already invisible.
+   The case that genuinely needed dithering was body::before's smooth gradient,
+   and that no longer exists.
+
+   Transparent at both ends on purpose: acts are pinned and tile against each
+   other, so a hard edge here would draw a seam across the page at every handover.
+
+   The fades are smoothstep, sampled at seven points, not a straight ramp between
+   two stops. CSS interpolates linearly between stops, so a two-stop fade holds
+   one constant slope and then changes to another instantly where it meets the
+   flat section. That slope discontinuity is what the eye reads as a hard line
+   across the page — Mach banding, and it shows up even at colour depths where
+   there is no quantisation left to see. Smoothstep arrives at both ends with zero
+   slope, so it meets the flat section without a kink.
+
+   Peak 0.88, matching the original, and in the page's own black rather than a
+   near-black of its own. Both matter for the same reason: at 0.55 in #04060b only
+   just over half the field was covered, so the plateau read as a translucent grey
+   panel laid over the page instead of as darkness — the text sat on a slab you
+   could see. Full-strength black is indistinguishable from the page behind it, so
+   the text blends into the background and only the fades are visible at all. */
 .act__pin::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(
-    130% 90% at 22% 78%,
-    rgba(4, 6, 11, 0.88) 0%,
-    rgba(4, 6, 11, 0.55) 34%,
-    transparent 68%
-  );
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.065) 5%,
+      rgba(0, 0, 0, 0.228) 10%,
+      rgba(0, 0, 0, 0.44) 15%,
+      rgba(0, 0, 0, 0.652) 20%,
+      rgba(0, 0, 0, 0.815) 25%,
+      rgba(0, 0, 0, 0.88) 30%,
+      rgba(0, 0, 0, 0.88) 82%,
+      rgba(0, 0, 0, 0.815) 85%,
+      rgba(0, 0, 0, 0.652) 88%,
+      rgba(0, 0, 0, 0.44) 91%,
+      rgba(0, 0, 0, 0.228) 94%,
+      rgba(0, 0, 0, 0.065) 97%,
+      rgba(0, 0, 0, 0) 100%
+    );
 }
 
 .act__pin > * {
@@ -380,9 +421,16 @@ a {
   transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
 }
 
+/* will-change lives here, on the *waiting* state, rather than on each element.
+   Reveal is a one-shot: declaring it on .hero__title and friends promoted a
+   compositor layer per element for the life of the page, long after the only
+   transition they will ever run has finished. Hinting while the act is still
+   un-revealed is the window the browser can actually use it in, and it is
+   dropped the moment the act reveals. */
 .act[data-revealed='false'] .reveal {
   opacity: 0;
   transform: translate3d(0, 26px, 0);
+  will-change: transform, opacity;
 }
 
 /* Stagger, in the CSS rather than per-frame in JS. */
@@ -394,6 +442,9 @@ a {
   .act[data-revealed='false'] .reveal {
     opacity: 1;
     transform: none;
+    /* Nothing transitions here, so the hint would promote a layer for a change
+       that never comes. */
+    will-change: auto;
   }
 }
 
@@ -405,7 +456,6 @@ a {
   line-height: 1.16;
   letter-spacing: -0.03em;
   color: var(--ink);
-  will-change: transform, opacity;
 }
 
 /* ------------------------------------------------------------------ groups */
@@ -423,7 +473,6 @@ a {
   align-items: baseline;
   padding-top: clamp(0.9rem, 2vh, 1.3rem);
   border-top: 1px solid var(--line);
-  will-change: transform, opacity;
 }
 
 .group__label {
@@ -473,7 +522,6 @@ a {
 
 .hero__title {
   margin: 0;
-  will-change: transform, opacity;
   font-size: clamp(3.1rem, 13.5vw, 9.5rem);
   font-weight: 500;
   line-height: 0.88;
@@ -561,7 +609,6 @@ a {
 .copy {
   position: relative;
   margin-top: clamp(0.5rem, 2vh, 1.5rem);
-  will-change: transform, opacity;
   display: inline-flex;
   align-items: center;
   gap: clamp(0.75rem, 2vw, 1.25rem);
@@ -702,7 +749,7 @@ a {
   gap: 0.6rem;
   padding: 0.7rem 1.15rem;
   border: 1px solid var(--accent);
-  background: rgba(5, 7, 13, 0.95);
+  background: rgba(0, 0, 0, 0.95);
   box-shadow: 0 0 40px rgba(94, 169, 255, 0.25);
   font-family: var(--font-mono);
   font-size: 0.72rem;
