@@ -20,8 +20,15 @@ import { measureActs, type ActGeometry } from '../lib/acts'
 export function useSceneInput() {
   useEffect(() => {
     let bands: ActGeometry[] = []
+    let scrollMax = 0
     const measure = () => {
       bands = measureActs()
+      // Reading scrollHeight forces a synchronous layout flush. This used to sit
+      // in the scroll handler, so it was paid on every scroll event — and with
+      // four sticky pins keeping layout dirty, that is real main-thread time on
+      // exactly the frames the field's quality governor is watching. It only
+      // changes when layout does, which is when we are already measuring.
+      scrollMax = document.documentElement.scrollHeight - window.innerHeight
     }
 
     let lastY = window.scrollY
@@ -58,8 +65,7 @@ export function useSceneInput() {
         scene.timeline = clamp(timeline, 0, ACTS.length)
       }
 
-      const max = document.documentElement.scrollHeight - window.innerHeight
-      scene.scroll = max > 0 ? clamp(y / max, 0, 1) : 0
+      scene.scroll = scrollMax > 0 ? clamp(y / scrollMax, 0, 1) : 0
     }
 
     const setFromClient = (clientX: number, clientY: number) => {

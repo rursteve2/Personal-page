@@ -23,6 +23,62 @@ const FOV_Y = (55 * Math.PI) / 180
 const NEAR = 1
 const FAR = 3000
 
+/* ----------------------------------------------------------- governor tuning */
+
+/** Frames sampled to estimate the display's own cadence. */
+const FRAME_SAMPLES = 120
+/** Re-estimate the cadence this often, so a refresh-rate change is picked up. */
+const RECALIBRATE_EVERY = 30
+/** A frame counts as slow past this multiple of the measured cadence... */
+const SLOW_MULTIPLIER = 1.6
+/** ...but never below this, or a 240Hz display would call 7ms frames slow. */
+const SLOW_FLOOR_MS = 20
+/**
+ * Slow by any standard, whatever the cadence says.
+ *
+ * A relative threshold alone has a blind spot: a device that is *uniformly*
+ * slow calibrates its own slowness as the baseline and then reports every frame
+ * as normal. This is the backstop. It sits just above 30Hz (33.3ms) so the
+ * slowest real display cadence is not mistaken for a struggling one.
+ */
+const ABSOLUTE_SLOW_MS = 36
+/**
+ * The baseline is meant to be the display's refresh interval, and no real one
+ * is slower than 30Hz. Anything above this means we are the bottleneck, not the
+ * panel — so it must not be allowed to inflate the relative threshold.
+ */
+const MAX_REFRESH_MS = 34
+/** Net slow frames before stepping resolution down. */
+const SLOW_FRAMES_TO_STEP = 45
+/** Consecutive clean frames before stepping back up — deliberately ~10s. */
+const CLEAN_FRAMES_TO_RECOVER = 600
+/** No two steps closer together than this. */
+const STEP_COOLDOWN_MS = 2000
+const STEP_DOWN = 0.2
+/** Smaller than the step down, so recovery is slower than degradation. */
+const STEP_UP = 0.1
+/** Total step-ups allowed before latching, so it can never settle into a pulse. */
+const RECOVERY_BUDGET = 4
+/** Deltas beyond this are a stall or a tab resume, not a slow frame. */
+const STALL_MS = 250
+
+/* ------------------------------------------------------------ pointer tuning */
+
+/**
+ * `damp` reaches 95% of its target in 3/lambda seconds, so these are latencies
+ * in disguise. The previous 8 / 3 pair meant the bulge took 375ms to catch the
+ * cursor and a full second to inflate from nothing — read as lag, because it
+ * was, just not the kind that shows up in a frame profile.
+ */
+const POINTER_FOLLOW = 20
+/** Rise fast: the effect should answer the cursor. */
+const POINTER_RISE = 12
+/** Fall slow: a cursor that stops moving shouldn't make the dent pop. */
+const POINTER_FALL = 2
+const POINTER_STRENGTH = 15
+/** How long after the last real input the repulsion is held on. */
+const POINTER_IDLE_MS = 2500
+
 /** Matches the CSS `--accent` and `--accent-deep` tokens. */
 const COLOR_NEAR = srgbHexToLinear('#5ea9ff')
 const COLOR_FAR = srgbHexToLinear('#2f6fd0')
@@ -212,10 +268,100 @@ export function Field({ reducedMotion }: { reducedMotion: boolean }) {
     let velocity = 0
     let elapsed = 0
 
-    // Quality governor. Only ever steps down: stepping back up on recovery
-    // invites oscillation, and a resolution that visibly pulses is worse than
-    // one that is simply lower.
+    /* --- quality governor ------------------------------------------------
+     *
+     * What this can and cannot fix matters. `dt` is the interval *between* rAF
+     * callbacks, set by the display's refresh rate and by main-thread
+     * congestion — not by how long the GPU spent drawing. Dropping the render
+     * resolution only helps the last of those. So the slow-frame threshold is
+     * relative to the cadence the display is actually running at: the old fixed
+     * 22ms assumed 60Hz, and on a 30Hz panel (battery saver, low-power mode) it
+     * called *every* frame slow and ratcheted to the floor in 2.2 seconds, for
+     * no gain at all, since resolution was never the constraint.
+     *
+     * It also recovers now. Only stepping down avoided oscillation — correct,
+     * but it meant one burst of scroll jank permanently degraded the rest of the
+     * session, which is what Stephen was seeing on the way back up the page.
+     * Hysteresis buys both: a long clean run before stepping up, a smaller step
+     * up than down, a cooldown so steps cannot cascade, and a budget that
+     * latches after a few round trips so it can never settle into a pulse.
+     */
+
+    // Never below one canvas pixel per CSS pixel. Past that the whole field is
+    // upscaled *and* the points shrink with it — gl_PointSize is multiplied by
+    // the same dpr — so the smallest fall under a pixel and drop out of the
+    // radial falloff entirely. Whichever of the two floors binds first wins.
+    const minDprScale = Math.max(0.55, Math.min(1, 1 / quality.maxDpr))
+
+    const samples: number[] = []
+    let sampleAt = 0
+    let sinceCalibration = 0
+    let calibrated = false
+    let slowThresholdMs = SLOW_FLOOR_MS
     let slowFrames = 0
+    let cleanFrames = 0
+    let lastStepAt = -Infinity
+    let recoveryBudget = RECOVERY_BUDGET
+
+    const calibrate = () => {
+      // 20th percentile rather than the minimum: rAF can deliver two callbacks
+      // inside the same millisecond, and frameDelta's floor turns that into a
+      // 4.17ms sample no display ever produced.
+      const sorted = samples.slice().sort((a, b) => a - b)
+      const baseline = Math.min(sorted[Math.floor(sorted.length * 0.2)], MAX_REFRESH_MS)
+      slowThresholdMs = Math.max(baseline * SLOW_MULTIPLIER, SLOW_FLOOR_MS)
+      calibrated = true
+    }
+
+    const stepQuality = (next: number, now: number, direction: 'up' | 'down') => {
+      dprScale = next
+      slowFrames = 0
+      cleanFrames = 0
+      lastStepAt = now
+      resize()
+
+      if (import.meta.env.DEV) {
+        const dpr = Math.min(window.devicePixelRatio || 1, quality.maxDpr) * dprScale
+        console.debug(
+          `[field] quality ${direction} → scale ${dprScale.toFixed(2)}, ` +
+            `effective dpr ${dpr.toFixed(2)}, ` +
+            `slow threshold ${slowThresholdMs.toFixed(1)}ms, ` +
+            `recovery budget ${recoveryBudget}`,
+        )
+      }
+    }
+
+    const governor = (now: number, frameMs: number) => {
+      samples[sampleAt] = frameMs
+      sampleAt = (sampleAt + 1) % FRAME_SAMPLES
+
+      if (++sinceCalibration >= RECALIBRATE_EVERY && samples.length >= RECALIBRATE_EVERY) {
+        sinceCalibration = 0
+        calibrate()
+      }
+
+      // Nothing is judged against a threshold that hasn't been measured yet.
+      if (!calibrated) return
+
+      if (frameMs > slowThresholdMs || frameMs > ABSOLUTE_SLOW_MS) {
+        slowFrames += 1
+        cleanFrames = 0
+      } else {
+        slowFrames = Math.max(0, slowFrames - 1)
+        cleanFrames += 1
+      }
+
+      // A step reallocates the drawing buffer, which is itself a hitch — so a
+      // step must never be the thing that triggers the next one.
+      if (now - lastStepAt < STEP_COOLDOWN_MS) return
+
+      if (slowFrames >= SLOW_FRAMES_TO_STEP && dprScale > minDprScale) {
+        stepQuality(Math.max(minDprScale, dprScale - STEP_DOWN), now, 'down')
+      } else if (cleanFrames >= CLEAN_FRAMES_TO_RECOVER && dprScale < 1 && recoveryBudget > 0) {
+        recoveryBudget -= 1
+        stepQuality(Math.min(1, dprScale + STEP_UP), now, 'up')
+      }
+    }
 
     let frame = 0
     let last = performance.now()
@@ -230,14 +376,10 @@ export function Field({ reducedMotion }: { reducedMotion: boolean }) {
       const dt = frameDelta(raw)
       elapsed += dt
 
-      if (dt * 1000 > 22) slowFrames += 1
-      else slowFrames = Math.max(0, slowFrames - 1)
-
-      if (slowFrames >= 45 && dprScale > 0.55) {
-        dprScale = Math.max(0.55, dprScale - 0.2)
-        slowFrames = 0
-        resize()
-      }
+      // A backgrounded tab hands back an enormous delta on resume, and a GC
+      // pause or a tab switch is not evidence the GPU is struggling. Judging
+      // those would spend the governor's budget on things it cannot fix.
+      if (raw * 1000 < STALL_MS) governor(now, dt * 1000)
 
       const t = scene.timeline
 
@@ -256,12 +398,14 @@ export function Field({ reducedMotion }: { reducedMotion: boolean }) {
       scene.velocity = damp(scene.velocity, 0, 4.5, dt)
       velocity = damp(velocity, scene.velocity, 8, dt)
 
-      pointerX = damp(pointerX, scene.pointerX, 8, dt)
-      pointerY = damp(pointerY, -scene.pointerY, 8, dt)
+      pointerX = damp(pointerX, scene.pointerX, POINTER_FOLLOW, dt)
+      pointerY = damp(pointerY, -scene.pointerY, POINTER_FOLLOW, dt)
       // Fade the repulsion out once the pointer goes quiet, so a parked cursor
-      // doesn't leave a permanent dent.
-      const wanted = performance.now() - scene.lastInput < 2500 ? 15 : 0
-      pointerStrength = damp(pointerStrength, wanted, 3, dt)
+      // doesn't leave a permanent dent. Asymmetric on purpose: the rise is what
+      // the visitor reads as responsiveness, the fall is what keeps it calm.
+      const wanted = performance.now() - scene.lastInput < POINTER_IDLE_MS ? POINTER_STRENGTH : 0
+      const lambda = wanted > pointerStrength ? POINTER_RISE : POINTER_FALL
+      pointerStrength = damp(pointerStrength, wanted, lambda, dt)
 
       const clamped = clamp(t, 0, FORM_COUNT - 1)
       const from = Math.floor(clamped)
