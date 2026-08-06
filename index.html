@@ -13,19 +13,39 @@
     <meta property="og:title" content="Stephen Chen — Software Engineer" />
     <meta property="og:description" content="Software engineer in New York." />
     <meta property="og:url" content="https://www.stephencchen.com/" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://www.stephencchen.com/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Stephen Chen — Software Engineer, New York" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://www.stephencchen.com/og.png" />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate icon" href="/favicon.ico" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Both fonts are self-hosted (see the @font-face block in global.css) and
+      preloaded here rather than waited for. The stylesheet that declares them
+      is itself a build artifact the browser only discovers after parsing the
+      JS entry, so without these the first paint of the hero would wait on a
+      request that hasn't been made yet.
+    -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/space-grotesk-latin.woff2"
+      crossorigin
     />
-    <script type="module" crossorigin src="/assets/index-Duw4_0P5.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-xmlo1K-h.css">
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/jetbrains-mono-latin.woff2"
+      crossorigin
+    />
+    <script type="module" crossorigin src="/assets/index-bYMaZI0R.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DWog1g8L.css">
   </head>
   <body>
     <div id="root"></div>
